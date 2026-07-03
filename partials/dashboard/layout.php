@@ -4,6 +4,8 @@
         <?php include __DIR__ . '/dashboard-main/hero.php'; ?>
 
         <?php include __DIR__ . '/dashboard-main/department-showcase.php'; ?>
+
+        <?php include __DIR__ . '/dashboard-main/patients-chart.php'; ?>
     </section>
 
     <aside class="dashboard-sidebar">

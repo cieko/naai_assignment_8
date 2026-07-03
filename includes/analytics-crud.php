@@ -45,56 +45,538 @@ function getCriticalDepartments(mysqli $conn): array
     return $departments;
 }
 
-// function getPatientsByAge(mysqli $conn): array
-// {
-//     $sql = "SELECT patient_id, age FROM patients";
+function getPatientsByAge(mysqli $conn): array
+{
+    $sql = "
+        SELECT
+            patient_id,
+            age
+        FROM patients
+        ORDER BY patient_id
+    ";
 
-//     $result = mysqli_query($conn, $sql);
+    $result = mysqli_query($conn, $sql);
 
-//     $palette = [
-//         '#68D391',
-//         '#81E6D9',
-//         '#90CDF4',
-//         '#F6AD55',
-//         '#F687B3',
-//         '#B794F4'
-//     ];
+    if (!$result) {
+        return [];
+    }
 
-//     $patients = [];
+    $patients = [];
 
-//     while ($row = mysqli_fetch_assoc($result)) {
+    while ($row = mysqli_fetch_assoc($result)) {
+        $age = (int)$row['age'];
 
-//         $age = (int)$row['age'];
+        if ($age <= 12) {
+            $color = '#9fd8ff';
+        } elseif ($age <= 24) {
+            $color = '#cfc7ff';
+        } elseif ($age <= 39) {
+            $color = '#ffd5a0';
+        } elseif ($age <= 59) {
+            $color = '#8df0b6';
+        } else {
+            $color = '#22d4b8';
+        }
 
-//         $patients[] = [
-//             'id' => $row['patient_id'],
-//             'age' => $age,
-//             'value' => 1,
-//             'color' => $palette[$age % count($palette)]
-//         ];
-//     }
+        $patients[] = [
+            'id' => (int)$row['patient_id'],
+            'age' => $age,
+            'value' => max(12, $age + 10),
+            'color' => $color,
+        ];
+    }
 
-//     return $patients;
-// }
+    return $patients;
+}
 
-// function getPatientsByGender(mysqli $conn): array
-// {
-//     $sql = "SELECT gender,COUNT(*) total FROM patients GROUP BY gender";
+function getPatientsByGender(mysqli $conn): array
+{
+    $sql = "
+        SELECT
+            gender,
+            COUNT(*) AS total
+        FROM patients
+        GROUP BY gender
+    ";
 
-//     $result = mysqli_query($conn, $sql);
+    $result = mysqli_query($conn, $sql);
 
-//     $gender = [
-//         'Male' => 0,
-//         'Female' => 0,
-//         'Other' => 0
-//     ];
+    $gender = [
+        'Male' => 0,
+        'Female' => 0,
+        'Other' => 0,
+    ];
 
-//     while ($row = mysqli_fetch_assoc($result)) {
-//         $gender[$row['gender']] = $row['total'];
-//     }
+    if (!$result) {
+        return $gender;
+    }
 
-//     return $gender;
-// }
+    while ($row = mysqli_fetch_assoc($result)) {
+        $key = $row['gender'];
+
+        if (array_key_exists($key, $gender)) {
+            $gender[$key] = (int)$row['total'];
+        }
+    }
+
+    return $gender;
+}
+
+function getLatestBillingSnapshotSql(): string
+{
+    return "
+        SELECT
+            b1.admission_id,
+            b1.amount,
+            b1.payment_status,
+            b1.payment_date
+        FROM billing b1
+        INNER JOIN (
+            SELECT
+                admission_id,
+                MAX(bill_id) AS bill_id
+            FROM billing
+            GROUP BY admission_id
+        ) latest_bill
+            ON latest_bill.bill_id = b1.bill_id
+    ";
+}
+
+function getDiseaseOverview(mysqli $conn): array
+{
+    $overview = [
+        'tracked_patients' => 0,
+        'unique_diseases' => 0,
+        'active_cases' => 0,
+        'discharged_cases' => 0,
+        'total_revenue' => 0.0,
+        'top_disease_name' => 'No disease data',
+        'top_disease_count' => 0,
+    ];
+
+    $billingSql = getLatestBillingSnapshotSql();
+
+    $summarySql = "
+        SELECT
+            COUNT(DISTINCT p.patient_id) AS tracked_patients,
+            COUNT(DISTINCT TRIM(p.disease)) AS unique_diseases,
+            SUM(CASE WHEN a.status = 'Admitted' THEN 1 ELSE 0 END) AS active_cases,
+            SUM(CASE WHEN a.status = 'Discharged' THEN 1 ELSE 0 END) AS discharged_cases,
+            COALESCE(SUM(COALESCE(b.amount, 0)), 0) AS total_revenue
+        FROM patients p
+        LEFT JOIN admissions a
+            ON p.patient_id = a.patient_id
+        LEFT JOIN (
+            $billingSql
+        ) b
+            ON b.admission_id = a.admission_id
+        WHERE TRIM(COALESCE(p.disease, '')) <> ''
+    ";
+
+    $summaryResult = mysqli_query($conn, $summarySql);
+
+    if ($summaryResult) {
+        $row = mysqli_fetch_assoc($summaryResult) ?: [];
+
+        $overview['tracked_patients'] = (int)($row['tracked_patients'] ?? 0);
+        $overview['unique_diseases'] = (int)($row['unique_diseases'] ?? 0);
+        $overview['active_cases'] = (int)($row['active_cases'] ?? 0);
+        $overview['discharged_cases'] = (int)($row['discharged_cases'] ?? 0);
+        $overview['total_revenue'] = (float)($row['total_revenue'] ?? 0);
+
+        mysqli_free_result($summaryResult);
+    }
+
+    $topDiseaseSql = "
+        SELECT
+            TRIM(disease) AS disease_name,
+            COUNT(*) AS patient_total
+        FROM patients
+        WHERE TRIM(COALESCE(disease, '')) <> ''
+        GROUP BY TRIM(disease)
+        ORDER BY patient_total DESC, disease_name ASC
+        LIMIT 1
+    ";
+
+    $topDiseaseResult = mysqli_query($conn, $topDiseaseSql);
+
+    if ($topDiseaseResult) {
+        $topDisease = mysqli_fetch_assoc($topDiseaseResult) ?: null;
+
+        if ($topDisease !== null) {
+            $overview['top_disease_name'] = (string)$topDisease['disease_name'];
+            $overview['top_disease_count'] = (int)$topDisease['patient_total'];
+        }
+
+        mysqli_free_result($topDiseaseResult);
+    }
+
+    return $overview;
+}
+
+function getDiseaseDistribution(
+    mysqli $conn,
+    int $limit = 6
+): array {
+    $limit = max(1, $limit);
+    $billingSql = getLatestBillingSnapshotSql();
+
+    $sql = "
+        SELECT
+            TRIM(p.disease) AS disease_name,
+            COUNT(DISTINCT p.patient_id) AS patient_total,
+            COUNT(a.admission_id) AS admission_total,
+            SUM(CASE WHEN a.status = 'Admitted' THEN 1 ELSE 0 END) AS active_cases,
+            SUM(CASE WHEN a.status = 'Discharged' THEN 1 ELSE 0 END) AS discharged_cases,
+            COALESCE(SUM(COALESCE(b.amount, 0)), 0) AS total_revenue
+        FROM patients p
+        LEFT JOIN admissions a
+            ON p.patient_id = a.patient_id
+        LEFT JOIN (
+            $billingSql
+        ) b
+            ON b.admission_id = a.admission_id
+        WHERE TRIM(COALESCE(p.disease, '')) <> ''
+        GROUP BY TRIM(p.disease)
+        ORDER BY
+            patient_total DESC,
+            admission_total DESC,
+            disease_name ASC
+        LIMIT $limit
+    ";
+
+    $result = mysqli_query($conn, $sql);
+
+    if (!$result) {
+        return [];
+    }
+
+    $distribution = [];
+
+    while ($row = mysqli_fetch_assoc($result)) {
+        $distribution[] = [
+            'disease_name' => (string)$row['disease_name'],
+            'patient_total' => (int)$row['patient_total'],
+            'admission_total' => (int)$row['admission_total'],
+            'active_cases' => (int)$row['active_cases'],
+            'discharged_cases' => (int)$row['discharged_cases'],
+            'total_revenue' => (float)$row['total_revenue'],
+        ];
+    }
+
+    mysqli_free_result($result);
+
+    return $distribution;
+}
+
+function getDiseaseTrendSeries(
+    mysqli $conn,
+    int $months = 6,
+    int $diseaseLimit = 4
+): array {
+    $months = max(1, $months);
+    $diseaseLimit = max(1, $diseaseLimit);
+
+    $startMonth = (new DateTimeImmutable('first day of this month'))
+        ->modify('-' . ($months - 1) . ' months');
+
+    $monthMeta = [];
+    $monthCursor = $startMonth;
+
+    for ($index = 0; $index < $months; $index += 1) {
+        $monthMeta[] = [
+            'key' => $monthCursor->format('Y-m-01'),
+            'label' => $monthCursor->format('M'),
+        ];
+
+        $monthCursor = $monthCursor->modify('+1 month');
+    }
+
+    $sql = "
+        SELECT
+            DATE_FORMAT(a.admission_date, '%Y-%m-01') AS month_key,
+            TRIM(p.disease) AS disease_name,
+            COUNT(a.admission_id) AS total_cases
+        FROM admissions a
+        INNER JOIN patients p
+            ON a.patient_id = p.patient_id
+        WHERE a.admission_date >= '" . $startMonth->format('Y-m-d') . "'
+            AND TRIM(COALESCE(p.disease, '')) <> ''
+        GROUP BY
+            DATE_FORMAT(a.admission_date, '%Y-%m-01'),
+            TRIM(p.disease)
+        ORDER BY
+            month_key ASC,
+            total_cases DESC,
+            disease_name ASC
+    ";
+
+    $result = mysqli_query($conn, $sql);
+
+    if (!$result) {
+        return [
+            'months' => $monthMeta,
+            'series' => [],
+        ];
+    }
+
+    $seriesMatrix = [];
+    $diseaseTotals = [];
+
+    while ($row = mysqli_fetch_assoc($result)) {
+        $diseaseName = (string)$row['disease_name'];
+        $monthKey = (string)$row['month_key'];
+        $totalCases = (int)$row['total_cases'];
+
+        if ($diseaseName === '' || $monthKey === '') {
+            continue;
+        }
+
+        $seriesMatrix[$diseaseName][$monthKey] = $totalCases;
+        $diseaseTotals[$diseaseName] = ($diseaseTotals[$diseaseName] ?? 0) + $totalCases;
+    }
+
+    mysqli_free_result($result);
+
+    $rankedDiseases = [];
+
+    foreach ($diseaseTotals as $diseaseName => $totalCases) {
+        $rankedDiseases[] = [
+            'disease_name' => $diseaseName,
+            'total_cases' => $totalCases,
+        ];
+    }
+
+    usort(
+        $rankedDiseases,
+        static function (array $left, array $right): int {
+            $byTotal = $right['total_cases'] <=> $left['total_cases'];
+
+            if ($byTotal !== 0) {
+                return $byTotal;
+            }
+
+            return strcmp($left['disease_name'], $right['disease_name']);
+        }
+    );
+
+    $selectedDiseases = array_slice($rankedDiseases, 0, $diseaseLimit);
+    $series = [];
+
+    foreach ($selectedDiseases as $disease) {
+        $diseaseName = $disease['disease_name'];
+        $values = [];
+
+        foreach ($monthMeta as $month) {
+            $values[] = [
+                'key' => $month['key'],
+                'label' => $month['label'],
+                'value' => (int)($seriesMatrix[$diseaseName][$month['key']] ?? 0),
+            ];
+        }
+
+        $series[] = [
+            'disease_name' => $diseaseName,
+            'total_cases' => (int)$disease['total_cases'],
+            'values' => $values,
+        ];
+    }
+
+    return [
+        'months' => $monthMeta,
+        'series' => $series,
+    ];
+}
+
+function getDiseaseDepartmentBreakdown(
+    mysqli $conn,
+    int $diseaseLimit = 5
+): array {
+    $diseaseLimit = max(1, $diseaseLimit);
+
+    $sql = "
+        SELECT
+            TRIM(p.disease) AS disease_name,
+            dep.department_name,
+            COUNT(a.admission_id) AS total_cases
+        FROM admissions a
+        INNER JOIN patients p
+            ON a.patient_id = p.patient_id
+        INNER JOIN doctors d
+            ON a.doctor_id = d.doctor_id
+        INNER JOIN departments dep
+            ON d.department_id = dep.department_id
+        WHERE TRIM(COALESCE(p.disease, '')) <> ''
+        GROUP BY
+            TRIM(p.disease),
+            dep.department_name
+        ORDER BY
+            total_cases DESC,
+            disease_name ASC,
+            dep.department_name ASC
+    ";
+
+    $result = mysqli_query($conn, $sql);
+
+    if (!$result) {
+        return [
+            'departments' => [],
+            'rows' => [],
+        ];
+    }
+
+    $diseaseTotals = [];
+    $departmentTotals = [];
+    $matrix = [];
+
+    while ($row = mysqli_fetch_assoc($result)) {
+        $diseaseName = (string)$row['disease_name'];
+        $departmentName = (string)$row['department_name'];
+        $totalCases = (int)$row['total_cases'];
+
+        if ($diseaseName === '' || $departmentName === '') {
+            continue;
+        }
+
+        $diseaseTotals[$diseaseName] = ($diseaseTotals[$diseaseName] ?? 0) + $totalCases;
+        $departmentTotals[$departmentName] = ($departmentTotals[$departmentName] ?? 0) + $totalCases;
+        $matrix[$diseaseName][$departmentName] = $totalCases;
+    }
+
+    mysqli_free_result($result);
+
+    $rankedDiseases = [];
+
+    foreach ($diseaseTotals as $diseaseName => $totalCases) {
+        $rankedDiseases[] = [
+            'disease_name' => $diseaseName,
+            'total_cases' => $totalCases,
+        ];
+    }
+
+    usort(
+        $rankedDiseases,
+        static function (array $left, array $right): int {
+            $byTotal = $right['total_cases'] <=> $left['total_cases'];
+
+            if ($byTotal !== 0) {
+                return $byTotal;
+            }
+
+            return strcmp($left['disease_name'], $right['disease_name']);
+        }
+    );
+
+    $selectedDiseases = array_slice($rankedDiseases, 0, $diseaseLimit);
+    $selectedDiseaseNames = array_column($selectedDiseases, 'disease_name');
+
+    $rankedDepartments = [];
+
+    foreach ($departmentTotals as $departmentName => $totalCases) {
+        $rankedDepartments[] = [
+            'department_name' => $departmentName,
+            'total_cases' => $totalCases,
+        ];
+    }
+
+    usort(
+        $rankedDepartments,
+        static function (array $left, array $right): int {
+            $byTotal = $right['total_cases'] <=> $left['total_cases'];
+
+            if ($byTotal !== 0) {
+                return $byTotal;
+            }
+
+            return strcmp($left['department_name'], $right['department_name']);
+        }
+    );
+
+    $rows = [];
+
+    foreach ($selectedDiseaseNames as $diseaseName) {
+        $segments = [];
+
+        foreach ($rankedDepartments as $department) {
+            $departmentName = $department['department_name'];
+            $totalCases = (int)($matrix[$diseaseName][$departmentName] ?? 0);
+
+            if ($totalCases <= 0) {
+                continue;
+            }
+
+            $segments[] = [
+                'department_name' => $departmentName,
+                'total_cases' => $totalCases,
+                'percentage' => $diseaseTotals[$diseaseName] > 0
+                    ? round(($totalCases / $diseaseTotals[$diseaseName]) * 100, 1)
+                    : 0,
+            ];
+        }
+
+        $rows[] = [
+            'disease_name' => $diseaseName,
+            'total_cases' => (int)$diseaseTotals[$diseaseName],
+            'segments' => $segments,
+        ];
+    }
+
+    return [
+        'departments' => $rankedDepartments,
+        'rows' => $rows,
+    ];
+}
+
+function getRecentDiseaseCases(
+    mysqli $conn,
+    int $limit = 8
+): array {
+    $limit = max(1, $limit);
+    $billingSql = getLatestBillingSnapshotSql();
+
+    $sql = "
+        SELECT
+            a.admission_id,
+            p.patient_id,
+            p.patient_name,
+            TRIM(p.disease) AS disease_name,
+            d.doctor_name,
+            dep.department_name,
+            a.admission_date,
+            a.discharge_date,
+            a.status,
+            COALESCE(b.amount, 0) AS amount,
+            COALESCE(b.payment_status, 'Pending') AS payment_status
+        FROM admissions a
+        INNER JOIN patients p
+            ON a.patient_id = p.patient_id
+        INNER JOIN doctors d
+            ON a.doctor_id = d.doctor_id
+        INNER JOIN departments dep
+            ON d.department_id = dep.department_id
+        LEFT JOIN (
+            $billingSql
+        ) b
+            ON b.admission_id = a.admission_id
+        WHERE TRIM(COALESCE(p.disease, '')) <> ''
+        ORDER BY
+            a.admission_date DESC,
+            a.admission_id DESC
+        LIMIT $limit
+    ";
+
+    $result = mysqli_query($conn, $sql);
+
+    if (!$result) {
+        return [];
+    }
+
+    $cases = mysqli_fetch_all($result, MYSQLI_ASSOC);
+
+    mysqli_free_result($result);
+
+    return $cases;
+}
 
 function getAllStaff(mysqli $conn): array
 {

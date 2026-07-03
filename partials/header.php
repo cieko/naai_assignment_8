@@ -1,3 +1,9 @@
+<?php
+$headerSearchValue = isCurrentPage('patients')
+    ? getSearchTerm('search')
+    : '';
+?>
+
 <header>
 
     <div class="logo">
@@ -47,15 +53,27 @@
 
     <div class="actions">
 
-        <div class="search">
+        <form
+            action=""
+            method="get"
+            class="search"
+            role="search"
+            aria-label="Search patient">
+            <input
+                type="hidden"
+                name="page"
+                value="patients">
+
             <i class="ri-search-line" aria-hidden="true"></i>
 
             <input
                 type="text"
+                name="search"
+                value="<?= htmlspecialchars($headerSearchValue, ENT_QUOTES, 'UTF-8') ?>"
                 placeholder="Search Patient"
                 aria-label="Search patient"
             >
-        </div>
+        </form>
 
         <img
             class="profile"

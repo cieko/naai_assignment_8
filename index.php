@@ -1,6 +1,8 @@
 <?php
 require_once __DIR__ . '/includes/bootstrap.php';
 require_once __DIR__ . '/includes/analytics-crud.php';
+require_once __DIR__ . '/includes/patients-crud.php';
+require_once __DIR__ . '/includes/visits-crud.php';
 
 $conn = connection();
 
@@ -22,6 +24,7 @@ $conn = connection();
         rel="stylesheet"
         href="https://cdn.jsdelivr.net/npm/vanilla-calendar-pro/styles/index.css">
 
+    <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/vanilla-calendar-pro/index.js" defer></script>
     <script src="./public/js/app.js" defer></script>
 </head>

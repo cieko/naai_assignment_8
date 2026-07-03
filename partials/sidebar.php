@@ -60,10 +60,6 @@ $currentPage = $_GET['page'] ?? 'dashboard';
     <div class="sidebar-footer">
 
         <a href="#">
-            <i class="ri-settings-3-line"></i>
-        </a>
-
-        <a href="#">
             <i class="ri-question-line"></i>
         </a>
 
