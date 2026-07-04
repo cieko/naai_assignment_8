@@ -13,11 +13,13 @@ $colors = [
 ];
 ?>
 
-<section class="card critical-condition">
+<section
+    class="card critical-condition"
+    aria-labelledby="critical-condition-heading">
     <div class="title-section">
 
         <div class="headline-wrapper">
-            <h4>Critical Condition</h4>
+            <h4 id="critical-condition-heading">Critical Condition</h4>
             <p>Real-time monitoring for critical patients.</p>
         </div>
 
@@ -33,7 +35,8 @@ $colors = [
                     <div class="legend-item">
                         <span
                             class="legend-color"
-                            style="background-color: <?= htmlspecialchars($color) ?>;">
+                            style="background-color: <?= htmlspecialchars($color) ?>;"
+                            aria-hidden="true">
                         </span>
 
                         <span class="legend-title"><?= htmlspecialchars($departmentName) ?></span>
@@ -43,8 +46,10 @@ $colors = [
             </div>
         </div>
 
-        <div class="actions">
-            <i class="ri-install-line"></i>
+        <div
+            class="actions"
+            aria-hidden="true">
+            <i class="ri-install-line" aria-hidden="true"></i>
         </div>
 
     </div>
@@ -76,6 +81,7 @@ $colors = [
 
                         <i
                             class="<?= $icon ?>"
+                            aria-hidden="true"
                             style="color: <?= htmlspecialchars($color) ?>;">
                         </i>
 
@@ -93,7 +99,10 @@ $colors = [
             <?php endforeach; ?>
         </div>
 
-        <div class="chart">
+        <div
+            class="chart"
+            role="img"
+            aria-label="Critical department comparison chart">
 
             <?php foreach ($departments as $department): ?>
 
@@ -110,7 +119,7 @@ $colors = [
                         style="height: <?= $department["percentage"] ?>%;--color: <?= $color ?>;">
                     </div>
 
-                    <div class="chart-badge" style="background:<?= $color ?>; ?>;">
+                    <div class="chart-badge" style="background: <?= $color ?>;">
                         <?= $department["patient_count"] ?> Patients
                     </div>
 

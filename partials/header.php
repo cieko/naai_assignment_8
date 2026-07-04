@@ -6,13 +6,17 @@ $headerSearchValue = isCurrentPage('patients')
 
 <header>
 
-    <div class="logo">
+    <a
+        href="?page=dashboard"
+        class="logo"
+        aria-label="Medical Analytics dashboard">
         <img
             src="public/images/icon.png"
-            alt="Analytics Icon"
+            alt=""
+            aria-hidden="true"
         >
-        <span>Analytics</span>
-    </div>
+        <span>Medical Analytics</span>
+    </a>
 
     <nav aria-label="Main navigation">
         <ul>
@@ -59,6 +63,8 @@ $headerSearchValue = isCurrentPage('patients')
             class="search"
             role="search"
             aria-label="Search patient">
+            <label for="header-search" class="sr-only">Search patients</label>
+
             <input
                 type="hidden"
                 name="page"
@@ -67,18 +73,20 @@ $headerSearchValue = isCurrentPage('patients')
             <i class="ri-search-line" aria-hidden="true"></i>
 
             <input
+                id="header-search"
                 type="text"
                 name="search"
                 value="<?= htmlspecialchars($headerSearchValue, ENT_QUOTES, 'UTF-8') ?>"
                 placeholder="Search Patient"
-                aria-label="Search patient"
+                autocomplete="off"
             >
         </form>
 
         <img
             class="profile"
             src="public/images/user.png"
-            alt="User profile"
+            alt=""
+            aria-hidden="true"
         >
 
     </div>

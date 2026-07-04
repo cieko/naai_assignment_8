@@ -8,14 +8,20 @@
 ?>
 
 <div class="modal-backdrop">
-    <div class="modal">
+    <div
+        class="modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="department-form-title"
+        aria-describedby="department-form-description">
         <div class="modal-header">
-            <h3>Add Department</h3>
+            <h3 id="department-form-title">Add Department</h3>
 
             <a
                 href="<?= $escape($departmentCloseUrl) ?>"
-                class="modal-close">
-                <i class="ri-close-line"></i>
+                class="modal-close"
+                aria-label="Close department form">
+                <i class="ri-close-line" aria-hidden="true"></i>
             </a>
         </div>
 
@@ -73,7 +79,7 @@
             <div class="department-manager-header">
                 <div>
                     <h4>Manage Departments</h4>
-                    <p>
+                    <p id="department-form-description">
                         Departments can be deleted only when no staff members are assigned to them.
                     </p>
                 </div>

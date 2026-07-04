@@ -8,14 +8,20 @@
 ?>
 
 <div class="modal-backdrop modal-backdrop--stacked">
-    <div class="modal modal--confirm">
+    <div
+        class="modal modal--confirm"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="department-delete-title"
+        aria-describedby="department-delete-description">
         <div class="modal-header">
-            <h3>Delete Department</h3>
+            <h3 id="department-delete-title">Delete Department</h3>
 
             <a
                 href="<?= $escape($departmentModalBaseUrl) ?>"
-                class="modal-close">
-                <i class="ri-close-line"></i>
+                class="modal-close"
+                aria-label="Close delete department dialog">
+                <i class="ri-close-line" aria-hidden="true"></i>
             </a>
         </div>
 
@@ -24,7 +30,9 @@
             method="post"
             class="modal-form">
 
-            <div class="confirm-copy">
+            <div
+                id="department-delete-description"
+                class="confirm-copy">
                 <p>
                     Delete
                     <strong><?= $escape($deletingDepartment['department_name']) ?></strong>

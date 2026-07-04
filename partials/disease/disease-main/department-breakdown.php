@@ -60,7 +60,10 @@
                                 style="--department-accent: <?= $escape($departmentColors[$departmentName] ?? '#64748b') ?>;">
                                 <div class="disease-department-tile__top">
                                     <span class="disease-department-tile__name">
-                                        <span class="disease-department-legend-swatch"></span>
+                                        <span
+                                            class="disease-department-legend-swatch"
+                                            aria-hidden="true">
+                                        </span>
                                         <?= $escape($departmentName) ?>
                                     </span>
 

@@ -6,6 +6,30 @@ require_once __DIR__ . '/includes/visits-crud.php';
 
 $conn = connection();
 
+$page = $_GET['page'] ?? 'dashboard';
+
+$pages = [
+    'dashboard' => 'partials/dashboard/layout.php',
+    'patients' => 'partials/patients/layout.php',
+    'staff' => 'partials/staff/layout.php',
+    'visits' => 'partials/visits/layout.php',
+    'disease' => 'partials/disease/layout.php',
+];
+
+$pageTitles = [
+    'dashboard' => 'Dashboard Overview',
+    'patients' => 'Patient Management',
+    'staff' => 'Staff Management',
+    'visits' => 'Visit Management',
+    'disease' => 'Disease Trend Analysis',
+];
+
+if (!isset($pages[$page])) {
+    $page = 'dashboard';
+}
+
+$pageTitle = htmlspecialchars($pageTitles[$page], ENT_QUOTES, 'UTF-8');
+
 ?>
 
 <!DOCTYPE html>
@@ -14,7 +38,7 @@ $conn = connection();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Medical Analytics</title>
+    <title><?= $pageTitle ?> | Medical Analytics</title>
 
     <link rel="shortcut icon" href="./public/favicon.ico" type="image/x-icon">
 
@@ -30,31 +54,18 @@ $conn = connection();
 </head>
 
 <body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
     <?php include __DIR__ . '/partials/header.php' ?>
 
     <div class="dashboard-layout">
 
         <?php include __DIR__ . '/partials/sidebar.php'; ?>
 
-        <main class="container">
-            <?php
+        <main id="main-content" class="container" tabindex="-1">
+            <h1 class="sr-only"><?= $pageTitle ?></h1>
 
-            $page = $_GET['page'] ?? 'dashboard';
-
-            $pages = [
-                'dashboard'   => 'partials/dashboard/layout.php',
-                'patients'       => 'partials/patients/layout.php',
-                'staff'       => 'partials/staff/layout.php',
-                'visits'      => 'partials/visits/layout.php',
-                'disease'     => 'partials/disease/layout.php',
-            ];
-
-            if (!isset($pages[$page])) {
-                $page = 'dashboard';
-            }
-
-            include __DIR__ . '/' . $pages[$page];
-            ?>
+            <?php include __DIR__ . '/' . $pages[$page]; ?>
         </main>
 
     </div>

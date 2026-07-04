@@ -5,14 +5,20 @@
 ?>
 
 <div class="modal-backdrop modal-backdrop--stacked">
-    <div class="modal modal--confirm">
+    <div
+        class="modal modal--confirm"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="visit-delete-title"
+        aria-describedby="visit-delete-description">
         <div class="modal-header">
-            <h3>Delete Visit</h3>
+            <h3 id="visit-delete-title">Delete Visit</h3>
 
             <a
                 href="<?= $escape(pageUrl([], 'visits')) ?>"
-                class="modal-close">
-                <i class="ri-close-line"></i>
+                class="modal-close"
+                aria-label="Close delete visit dialog">
+                <i class="ri-close-line" aria-hidden="true"></i>
             </a>
         </div>
 
@@ -21,7 +27,9 @@
             method="post"
             class="modal-form">
 
-            <div class="confirm-copy">
+            <div
+                id="visit-delete-description"
+                class="confirm-copy">
                 <p>
                     Delete the visit record for
                     <strong><?= $escape($deletingVisit['patient_name']) ?></strong>

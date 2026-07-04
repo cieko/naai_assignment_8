@@ -11,14 +11,19 @@
 ?>
 
 <div class="modal-backdrop">
-    <div class="modal">
+    <div
+        class="modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="staff-form-title">
         <div class="modal-header">
-            <h3><?= $escape($staffModalTitle) ?></h3>
+            <h3 id="staff-form-title"><?= $escape($staffModalTitle) ?></h3>
 
             <a
                 href="<?= $escape(pageUrl([], 'staff')) ?>"
-                class="modal-close">
-                <i class="ri-close-line"></i>
+                class="modal-close"
+                aria-label="Close staff form">
+                <i class="ri-close-line" aria-hidden="true"></i>
             </a>
         </div>
 
@@ -46,6 +51,7 @@
                     name="doctor_name"
                     type="text"
                     value="<?= $escape($staffFormValues['doctor_name']) ?>"
+                    autocomplete="name"
                     required>
             </div>
 
@@ -83,7 +89,7 @@
                     <a
                         href="<?= $escape($departmentModalUrl) ?>"
                         class="add-department-link">
-                        <i class="ri-add-circle-line"></i>
+                        <i class="ri-add-circle-line" aria-hidden="true"></i>
                         Add Department
                     </a>
                 </div>
@@ -118,6 +124,7 @@
                     id="phone"
                     name="phone"
                     type="text"
+                    autocomplete="tel"
                     value="<?= $escape($staffFormValues['phone']) ?>">
             </div>
 

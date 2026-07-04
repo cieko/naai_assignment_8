@@ -4,7 +4,9 @@
 /** @var Closure $pluralize */
 ?>
 
-<section class="disease-summary">
+<section
+    class="disease-summary"
+    aria-label="Disease summary metrics">
     <article class="card disease-stat-card">
         <span class="disease-stat-card__eyebrow">Tracked Patients</span>
         <strong class="disease-stat-card__value">

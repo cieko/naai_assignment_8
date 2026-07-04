@@ -11,7 +11,7 @@
     <article class="card disease-panel disease-panel--trend">
         <div class="disease-panel-header">
             <div class="disease-panel-copy">
-                <h3>Disease Trend</h3>
+                <h3 id="disease-trend-heading">Disease Trend</h3>
                 <p>Admission-driven trendline for the highest-volume diseases from the last six months.</p>
             </div>
 
@@ -23,7 +23,8 @@
                         <span class="disease-trend-legend-item">
                             <span
                                 class="disease-trend-legend-swatch"
-                                style="background: <?= $escape($diseaseColors[$item['disease_name']] ?? '#2f80ed') ?>;">
+                                style="background: <?= $escape($diseaseColors[$item['disease_name']] ?? '#2f80ed') ?>;"
+                                aria-hidden="true">
                             </span>
 
                             <?= $escape($item['disease_name']) ?>
@@ -37,7 +38,9 @@
 
         <div
             id="diseaseTrendChart"
-            class="disease-chart-canvas">
+            class="disease-chart-canvas"
+            role="img"
+            aria-label="Line chart showing disease volume trends over the last six months">
         </div>
     </article>
 

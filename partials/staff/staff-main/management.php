@@ -3,10 +3,12 @@
 /** @var array<int, array<string, mixed>> $staff */
 ?>
 
-<section class="staff">
+<section
+    class="staff"
+    aria-labelledby="staff-heading">
     <div class="staff-header">
         <div class="headline">
-            <h2>Staff Management</h2>
+            <h2 id="staff-heading">Staff Management</h2>
             <p>View and manage all registered doctors across departments.</p>
         </div>
 
@@ -17,15 +19,21 @@
         </a>
     </div>
 
-    <div class="staff-card">
+    <div
+        class="staff-card"
+        tabindex="0">
         <table class="staff-table">
+            <caption class="sr-only">
+                Registered doctors with department, specialization, phone number, and available actions.
+            </caption>
+
             <thead>
                 <tr>
-                    <th>Doctor</th>
-                    <th>Department</th>
-                    <th>Specialization</th>
-                    <th>Phone</th>
-                    <th>Actions</th>
+                    <th scope="col">Doctor</th>
+                    <th scope="col">Department</th>
+                    <th scope="col">Specialization</th>
+                    <th scope="col">Phone</th>
+                    <th scope="col">Actions</th>
                 </tr>
             </thead>
 
@@ -46,7 +54,7 @@
                     <?php foreach ($staff as $doctor): ?>
 
                         <tr>
-                            <td><?= $escape($doctor['doctor_name']) ?></td>
+                            <th scope="row"><?= $escape($doctor['doctor_name']) ?></th>
                             <td><?= $escape($doctor['department_name']) ?></td>
                             <td><?= $escape($doctor['specialization'] ?: 'Not set') ?></td>
                             <td><?= $escape($doctor['phone'] ?: 'Not set') ?></td>
@@ -57,14 +65,14 @@
                                         href="<?= $escape(pageUrl(['edit' => (int)$doctor['doctor_id']], 'staff')) ?>"
                                         class="staff-action-btn staff-edit"
                                         aria-label="Edit <?= $escape($doctor['doctor_name']) ?>">
-                                        <i class="ri-edit-box-line"></i>
+                                        <i class="ri-edit-box-line" aria-hidden="true"></i>
                                     </a>
 
                                     <a
                                         href="<?= $escape(pageUrl(['delete_staff' => (int)$doctor['doctor_id']], 'staff')) ?>"
                                         class="staff-action-btn staff-delete"
                                         aria-label="Delete <?= $escape($doctor['doctor_name']) ?>">
-                                        <i class="ri-delete-bin-line"></i>
+                                        <i class="ri-delete-bin-line" aria-hidden="true"></i>
                                     </a>
                                 </div>
                             </td>

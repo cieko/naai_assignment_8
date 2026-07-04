@@ -1,4 +1,22 @@
-<section class="dashboard-hero">
+<?php
+
+/** @var mysqli $conn */
+
+$heroStats = getDashboardHeroStats($conn);
+
+$formatCount = static function (int $value): string {
+    return htmlspecialchars(
+        number_format($value),
+        ENT_QUOTES,
+        'UTF-8'
+    );
+};
+
+?>
+
+<section
+    class="dashboard-hero"
+    aria-label="Patient and admission snapshot">
 
     <article class="card hero-card">
         <img
@@ -8,7 +26,7 @@
 
         <div class="stats">
             <h6>Total Active Patients</h6>
-            <h2>0</h2>
+            <h2><?= $formatCount($heroStats['active_patients']) ?></h2>
         </div>
     </article>
 
@@ -22,7 +40,7 @@
             <div>
                 <h6>Admission</h6>
             </div>
-            <h2>0</h2>
+            <h2><?= $formatCount($heroStats['admissions']) ?></h2>
         </div>
     </article>
 
@@ -36,7 +54,7 @@
             <div>
                 <h6>Discharge</h6>
             </div>
-            <h2>0</h2>
+            <h2><?= $formatCount($heroStats['discharges']) ?></h2>
         </div>
     </article>
 

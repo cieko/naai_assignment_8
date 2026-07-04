@@ -50,6 +50,7 @@
                 .select(target)
                 .append('svg')
                 .attr('class', 'disease-trend-svg')
+                .attr('aria-hidden', 'true')
                 .attr('viewBox', `0 0 ${width} ${height}`)
                 .attr('preserveAspectRatio', 'none');
 

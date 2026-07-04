@@ -38,6 +38,35 @@ html {
     scroll-behavior: smooth;
 }
 
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.skip-link {
+    position: fixed;
+    top: 12px;
+    left: 16px;
+    z-index: 1400;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    background: var(--black);
+    color: var(--white);
+    transform: translateY(-180%);
+    transition: transform 0.2s ease;
+}
+
+.skip-link:focus {
+    transform: translateY(0);
+}
+
 body {
     position: relative;
     min-height: 100vh;
@@ -93,6 +122,16 @@ textarea,
 select,
 button {
     font: inherit;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+    outline: 3px solid var(--blue);
+    outline-offset: 3px;
 }
 
 input,
@@ -177,6 +216,10 @@ nav li a {
 }
 
 nav li:hover {
+    background: var(--white-shade1);
+}
+
+nav li:focus-within {
     background: var(--white-shade1);
 }
 
@@ -322,6 +365,11 @@ nav li.active a {
     color: var(--blue);
 }
 
+.sidebar a:focus-visible {
+    background: var(--white-shade2);
+    color: var(--blue);
+}
+
 .sidebar li.active a {
     background: rgba(50, 170, 255, 0.12);
     color: var(--blue);
@@ -422,9 +470,8 @@ nav li.active a {
 
 .detail {
     display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 6px;
+    align-items: flex-start;
+    gap: 10px;
 
     font-size: 13px;
 }
@@ -432,15 +479,28 @@ nav li.active a {
 .detail i {
     font-size: 16px;
     color: var(--blue);
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.detail-copy {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
 }
 
 .detail span {
     color: var(--black-shade1);
+    line-height: 1.2;
 }
 
 .detail strong {
     color: var(--black-shade);
     font-weight: 700;
+    font-size: 1.2rem;
+    line-height: 1;
 }
 
 .calendar-card {
@@ -700,6 +760,10 @@ nav li.active a {
     font-size: 12px;
     font-weight: 600;
     color: var(--text-muted);
+}
+
+#main-content {
+    scroll-margin-top: calc(var(--header-height) + 20px);
 }
 
 /* === Disease === */
@@ -1306,6 +1370,12 @@ nav li.active a {
     overflow: hidden;
 }
 
+.staff-card:focus-visible {
+    box-shadow:
+        0 0 0 3px rgba(59, 130, 246, 0.24),
+        0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
 .staff-table {
     width: 100%;
     border-collapse: collapse;
@@ -1315,7 +1385,7 @@ nav li.active a {
     background: var(--white-shade2);
 }
 
-.staff-table th {
+.staff-table thead th {
     text-align: left;
     padding: 8px 16px;
     font-size: 12px;
@@ -1324,6 +1394,7 @@ nav li.active a {
     border-bottom: 1px solid var(--text-foreground);
 }
 
+.staff-table tbody th,
 .staff-table td {
     padding: 1rem;
     font-size: 0.95rem;
@@ -1331,11 +1402,17 @@ nav li.active a {
     border-bottom: 1px solid var(--light-gray);
 }
 
-.staff-table tbody tr:last-child td {
+.staff-table tbody th {
+    text-align: left;
+    font-weight: 600;
+}
+
+.staff-table tbody tr:last-child > * {
     border-bottom: none;
 }
 
-.staff-table tbody tr:hover {
+.staff-table tbody tr:hover,
+.staff-table tbody tr:focus-within {
     background: var(--text-foreground2);
 }
 
@@ -1699,11 +1776,12 @@ nav li.active a {
         min-width: 980px;
     }
 
-    .staff-table th {
+    .staff-table thead th {
         padding: 0.7rem 0.8rem;
         font-size: 0.68rem;
     }
 
+    .staff-table tbody th,
     .staff-table td {
         padding: 0.85rem 0.8rem;
         font-size: 0.88rem;
@@ -1777,6 +1855,10 @@ nav li.active a {
 }
 
 .modal-close:hover {
+    color: var(--black-shade);
+}
+
+.modal-close:focus-visible {
     color: var(--black-shade);
 }
 
@@ -2089,11 +2171,12 @@ nav li.active a {
         min-width: 860px;
     }
 
-    .staff-table th {
+    .staff-table thead th {
         padding: 0.65rem 0.7rem;
         font-size: 0.62rem;
     }
 
+    .staff-table tbody th,
     .staff-table td {
         padding: 0.75rem 0.7rem;
         font-size: 0.81rem;
@@ -2185,6 +2268,21 @@ nav li.active a {
         flex-direction: column-reverse;
     }
 
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    html {
+        scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
 }
 
 @media (max-width: 980px) {

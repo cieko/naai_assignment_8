@@ -45,6 +45,120 @@ function getCriticalDepartments(mysqli $conn): array
     return $departments;
 }
 
+function getDashboardHeroStats(mysqli $conn): array
+{
+    $stats = [
+        'active_patients' => 0,
+        'admissions' => 0,
+        'discharges' => 0,
+    ];
+
+    $sql = "
+        SELECT
+            COUNT(DISTINCT CASE
+                WHEN a.status = 'Admitted' THEN a.patient_id
+                ELSE NULL
+            END) AS active_patients,
+            COUNT(a.admission_id) AS admissions,
+            SUM(CASE
+                WHEN a.status = 'Discharged' THEN 1
+                ELSE 0
+            END) AS discharges
+        FROM admissions a
+    ";
+
+    $result = mysqli_query($conn, $sql);
+
+    if (!$result) {
+        return $stats;
+    }
+
+    $row = mysqli_fetch_assoc($result) ?: [];
+
+    $stats['active_patients'] = (int)($row['active_patients'] ?? 0);
+    $stats['admissions'] = (int)($row['admissions'] ?? 0);
+    $stats['discharges'] = (int)($row['discharges'] ?? 0);
+
+    mysqli_free_result($result);
+
+    return $stats;
+}
+
+function getDashboardOperationsOverview(mysqli $conn): array
+{
+    $overview = [
+        'total_visits' => 0,
+        'active_admissions' => 0,
+        'paid_bills' => 0,
+        'pending_bills' => 0,
+        'tracked_beds' => 0,
+        'occupied_beds' => 0,
+        'occupancy_rate' => 0,
+    ];
+
+    $billingSql = getLatestBillingSnapshotSql();
+
+    $sql = "
+        SELECT
+            (
+                SELECT COUNT(*)
+                FROM visit_history
+            ) AS total_visits,
+            (
+                SELECT COUNT(*)
+                FROM admissions
+                WHERE status = 'Admitted'
+            ) AS active_admissions,
+            (
+                SELECT COUNT(*)
+                FROM (
+                    $billingSql
+                ) latest_billing
+                WHERE latest_billing.payment_status = 'Paid'
+            ) AS paid_bills,
+            (
+                SELECT COUNT(*)
+                FROM (
+                    $billingSql
+                ) latest_billing
+                WHERE latest_billing.payment_status = 'Pending'
+            ) AS pending_bills,
+            (
+                SELECT COUNT(DISTINCT bed_number)
+                FROM admissions
+                WHERE TRIM(COALESCE(bed_number, '')) <> ''
+            ) AS tracked_beds,
+            (
+                SELECT COUNT(DISTINCT bed_number)
+                FROM admissions
+                WHERE status = 'Admitted'
+                    AND TRIM(COALESCE(bed_number, '')) <> ''
+            ) AS occupied_beds
+    ";
+
+    $result = mysqli_query($conn, $sql);
+
+    if (!$result) {
+        return $overview;
+    }
+
+    $row = mysqli_fetch_assoc($result) ?: [];
+
+    $overview['total_visits'] = (int)($row['total_visits'] ?? 0);
+    $overview['active_admissions'] = (int)($row['active_admissions'] ?? 0);
+    $overview['paid_bills'] = (int)($row['paid_bills'] ?? 0);
+    $overview['pending_bills'] = (int)($row['pending_bills'] ?? 0);
+    $overview['tracked_beds'] = (int)($row['tracked_beds'] ?? 0);
+    $overview['occupied_beds'] = (int)($row['occupied_beds'] ?? 0);
+    $overview['occupancy_rate'] = $overview['tracked_beds'] > 0
+        ? (int)round(($overview['occupied_beds'] / $overview['tracked_beds']) * 100)
+        : 0;
+
+    mysqli_free_result($result);
+
+    return $overview;
+}
+
 function getPatientsByAge(mysqli $conn): array
 {
     $sql = "

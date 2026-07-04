@@ -12,14 +12,19 @@
 ?>
 
 <div class="modal-backdrop">
-    <div class="modal">
+    <div
+        class="modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="visit-form-title">
         <div class="modal-header">
-            <h3><?= $escape($visitModalTitle) ?></h3>
+            <h3 id="visit-form-title"><?= $escape($visitModalTitle) ?></h3>
 
             <a
                 href="<?= $escape(pageUrl([], 'visits')) ?>"
-                class="modal-close">
-                <i class="ri-close-line"></i>
+                class="modal-close"
+                aria-label="Close visit form">
+                <i class="ri-close-line" aria-hidden="true"></i>
             </a>
         </div>
 
@@ -172,6 +177,7 @@
                     type="number"
                     min="0"
                     step="0.01"
+                    inputmode="decimal"
                     value="<?= $escape($visitFormValues['amount']) ?>"
                     required>
             </div>

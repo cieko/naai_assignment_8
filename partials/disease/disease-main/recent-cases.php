@@ -6,10 +6,13 @@
 /** @var array<string, string> $statusBadgeMap */
 ?>
 
-<section class="staff-card disease-table-card">
+<section
+    class="staff-card disease-table-card"
+    aria-labelledby="disease-cases-heading"
+    tabindex="0">
     <div class="disease-table-header">
         <div class="headline">
-            <h3>Recent Disease Cases</h3>
+            <h3 id="disease-cases-heading">Recent Disease Cases</h3>
             <p>Latest admitted or discharged cases with doctor, department, treatment cost, and payment status.</p>
         </div>
     </div>
@@ -23,17 +26,21 @@
     <?php else: ?>
 
         <table class="staff-table staff-table--wide">
+            <caption class="sr-only">
+                Recent disease-linked admission records with doctor, department, billing, payment, and admission status.
+            </caption>
+
             <thead>
                 <tr>
-                    <th>Patient</th>
-                    <th>Disease</th>
-                    <th>Doctor</th>
-                    <th>Department</th>
-                    <th>Admission</th>
-                    <th>Discharge</th>
-                    <th>Treatment Cost</th>
-                    <th>Payment</th>
-                    <th>Status</th>
+                    <th scope="col">Patient</th>
+                    <th scope="col">Disease</th>
+                    <th scope="col">Doctor</th>
+                    <th scope="col">Department</th>
+                    <th scope="col">Admission</th>
+                    <th scope="col">Discharge</th>
+                    <th scope="col">Treatment Cost</th>
+                    <th scope="col">Payment</th>
+                    <th scope="col">Status</th>
                 </tr>
             </thead>
 
@@ -48,7 +55,7 @@
                     ?>
 
                     <tr>
-                        <td><?= $escape($case['patient_name']) ?></td>
+                        <th scope="row"><?= $escape($case['patient_name']) ?></th>
                         <td><?= $escape($case['disease_name']) ?></td>
                         <td><?= $escape($case['doctor_name']) ?></td>
                         <td><?= $escape($case['department_name']) ?></td>

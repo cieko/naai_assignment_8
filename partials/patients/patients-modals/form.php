@@ -12,14 +12,19 @@
 ?>
 
 <div class="modal-backdrop">
-    <div class="modal">
+    <div
+        class="modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="patient-form-title">
         <div class="modal-header">
-            <h3><?= $escape($patientModalTitle) ?></h3>
+            <h3 id="patient-form-title"><?= $escape($patientModalTitle) ?></h3>
 
             <a
                 href="<?= $escape(pageUrl($patientPageParams, 'patients')) ?>"
-                class="modal-close">
-                <i class="ri-close-line"></i>
+                class="modal-close"
+                aria-label="Close patient form">
+                <i class="ri-close-line" aria-hidden="true"></i>
             </a>
         </div>
 
@@ -54,6 +59,7 @@
                     name="patient_name"
                     type="text"
                     value="<?= $escape($patientFormValues['patient_name']) ?>"
+                    autocomplete="name"
                     required>
             </div>
 
@@ -66,6 +72,7 @@
                     type="number"
                     min="0"
                     max="150"
+                    inputmode="numeric"
                     value="<?= $escape($patientFormValues['age']) ?>"
                     required>
             </div>

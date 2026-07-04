@@ -1,4 +1,6 @@
-<section class="dashboard">
+<section
+    class="dashboard"
+    aria-label="Dashboard overview">
 
     <section class="dashboard-main">
         <?php include __DIR__ . '/dashboard-main/hero.php'; ?>

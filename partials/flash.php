@@ -21,8 +21,14 @@ $flashMessage = htmlspecialchars(
     'UTF-8'
 );
 
+$isAssertiveFlash = $flashType === 'error';
+
 ?>
 
-<div class="app-flash app-flash--<?= $flashType ?>">
+<div
+    class="app-flash app-flash--<?= $flashType ?>"
+    role="<?= $isAssertiveFlash ? 'alert' : 'status' ?>"
+    aria-live="<?= $isAssertiveFlash ? 'assertive' : 'polite' ?>"
+    aria-atomic="true">
     <span><?= $flashMessage ?></span>
 </div>

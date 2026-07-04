@@ -5,10 +5,12 @@
 /** @var string $patientSearch */
 ?>
 
-<section class="staff">
+<section
+    class="staff"
+    aria-labelledby="patients-heading">
     <div class="staff-header">
         <div class="headline">
-            <h2>Patient Management</h2>
+            <h2 id="patients-heading">Patient Management</h2>
             <p>View and manage all registered patients and their primary disease records.</p>
         </div>
 
@@ -19,15 +21,21 @@
         </a>
     </div>
 
-    <div class="staff-card">
+    <div
+        class="staff-card"
+        tabindex="0">
         <table class="staff-table">
+            <caption class="sr-only">
+                Registered patient records with age, gender, disease, and available actions.
+            </caption>
+
             <thead>
                 <tr>
-                    <th>Patient Name</th>
-                    <th>Age</th>
-                    <th>Gender</th>
-                    <th>Disease</th>
-                    <th>Actions</th>
+                    <th scope="col">Patient Name</th>
+                    <th scope="col">Age</th>
+                    <th scope="col">Gender</th>
+                    <th scope="col">Disease</th>
+                    <th scope="col">Actions</th>
                 </tr>
             </thead>
 
@@ -37,7 +45,7 @@
 
                     <tr>
                         <td
-                            colspan="6"
+                            colspan="5"
                             class="staff-empty">
                             <?= $patientSearch !== ''
                                 ? 'No patients matched "' . $escape($patientSearch) . '".'
@@ -50,7 +58,7 @@
                     <?php foreach ($patients as $patient): ?>
 
                         <tr>
-                            <td><?= $escape($patient['patient_name']) ?></td>
+                            <th scope="row"><?= $escape($patient['patient_name']) ?></th>
                             <td><?= (int)$patient['age'] ?></td>
                             <td><?= $escape($patient['gender']) ?></td>
                             <td><?= $escape($patient['disease'] ?: 'Not set') ?></td>
@@ -61,14 +69,14 @@
                                         href="<?= $escape(pageUrl(array_merge($patientPageParams, ['edit' => (int)$patient['patient_id']]), 'patients')) ?>"
                                         class="staff-action-btn staff-edit"
                                         aria-label="Edit <?= $escape($patient['patient_name']) ?>">
-                                        <i class="ri-edit-box-line"></i>
+                                        <i class="ri-edit-box-line" aria-hidden="true"></i>
                                     </a>
 
                                     <a
                                         href="<?= $escape(pageUrl(array_merge($patientPageParams, ['delete_patient' => (int)$patient['patient_id']]), 'patients')) ?>"
                                         class="staff-action-btn staff-delete"
                                         aria-label="Delete <?= $escape($patient['patient_name']) ?>">
-                                        <i class="ri-delete-bin-line"></i>
+                                        <i class="ri-delete-bin-line" aria-hidden="true"></i>
                                     </a>
                                 </div>
                             </td>

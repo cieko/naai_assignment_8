@@ -36,11 +36,15 @@ $jsonFlags = JSON_HEX_TAG
 
 ?>
 
-<section class="card patients-insights">
+<section
+    class="card patients-insights"
+    aria-label="Patient distribution insights">
     <article class="patients-insights-panel">
         <div
             id="patientsAgeChart"
-            class="patients-insights-canvas">
+            class="patients-insights-canvas"
+            role="img"
+            aria-label="Bubble chart showing patient distribution by age">
         </div>
 
         <h4>By Age</h4>
@@ -49,7 +53,9 @@ $jsonFlags = JSON_HEX_TAG
     <article class="patients-insights-panel patients-insights-panel--gender">
         <div
             id="patientsGenderChart"
-            class="patients-insights-canvas patients-insights-canvas--gender">
+            class="patients-insights-canvas patients-insights-canvas--gender"
+            role="img"
+            aria-label="Semi-circle chart showing patient distribution by gender">
         </div>
 
         <h4>By Gender</h4>
@@ -96,6 +102,7 @@ $jsonFlags = JSON_HEX_TAG
                 .select(ageTarget)
                 .append('svg')
                 .attr('class', 'patients-insights-svg')
+                .attr('aria-hidden', 'true')
                 .attr('viewBox', `0 0 ${width} ${height}`)
                 .attr('preserveAspectRatio', 'none');
 
@@ -170,6 +177,7 @@ $jsonFlags = JSON_HEX_TAG
                 .select(genderTarget)
                 .append('svg')
                 .attr('class', 'patients-insights-svg')
+                .attr('aria-hidden', 'true')
                 .attr('viewBox', `0 0 ${width} ${height}`)
                 .attr('preserveAspectRatio', 'none');
 

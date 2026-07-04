@@ -7,14 +7,20 @@
 ?>
 
 <div class="modal-backdrop modal-backdrop--stacked">
-    <div class="modal modal--confirm">
+    <div
+        class="modal modal--confirm"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="patient-delete-title"
+        aria-describedby="patient-delete-description">
         <div class="modal-header">
-            <h3>Delete Patient</h3>
+            <h3 id="patient-delete-title">Delete Patient</h3>
 
             <a
                 href="<?= $escape(pageUrl($patientPageParams, 'patients')) ?>"
-                class="modal-close">
-                <i class="ri-close-line"></i>
+                class="modal-close"
+                aria-label="Close delete patient dialog">
+                <i class="ri-close-line" aria-hidden="true"></i>
             </a>
         </div>
 
@@ -23,7 +29,9 @@
             method="post"
             class="modal-form">
 
-            <div class="confirm-copy">
+            <div
+                id="patient-delete-description"
+                class="confirm-copy">
                 <p>
                     Delete
                     <strong><?= $escape($deletingPatient['patient_name']) ?></strong>

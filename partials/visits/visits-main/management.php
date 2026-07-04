@@ -3,10 +3,12 @@
 /** @var array<int, array<string, mixed>> $visits */
 ?>
 
-<section class="staff">
+<section
+    class="staff"
+    aria-labelledby="visits-heading">
     <div class="staff-header">
         <div class="headline">
-            <h2>Visit Management</h2>
+            <h2 id="visits-heading">Visit Management</h2>
             <p>Track admissions, consultations, discharge details, and billing records.</p>
         </div>
 
@@ -17,18 +19,24 @@
         </a>
     </div>
 
-    <div class="staff-card">
+    <div
+        class="staff-card"
+        tabindex="0">
         <table class="staff-table staff-table--wide">
+            <caption class="sr-only">
+                Visit records showing patients, doctors, departments, admission details, payment status, and actions.
+            </caption>
+
             <thead>
                 <tr>
-                    <th>Patient</th>
-                    <th>Doctor</th>
-                    <th>Department</th>
-                    <th>Admission Date</th>
-                    <th>Discharge Date</th>
-                    <th>Treatment Cost</th>
-                    <th>Payment Status</th>
-                    <th>Actions</th>
+                    <th scope="col">Patient</th>
+                    <th scope="col">Doctor</th>
+                    <th scope="col">Department</th>
+                    <th scope="col">Admission Date</th>
+                    <th scope="col">Discharge Date</th>
+                    <th scope="col">Treatment Cost</th>
+                    <th scope="col">Payment Status</th>
+                    <th scope="col">Actions</th>
                 </tr>
             </thead>
 
@@ -49,7 +57,7 @@
                     <?php foreach ($visits as $visit): ?>
 
                         <tr>
-                            <td><?= $escape($visit['patient_name']) ?></td>
+                            <th scope="row"><?= $escape($visit['patient_name']) ?></th>
                             <td><?= $escape($visit['doctor_name']) ?></td>
                             <td><?= $escape($visit['department_name']) ?></td>
                             <td><?= $escape($visit['admission_date']) ?></td>
@@ -63,14 +71,14 @@
                                         href="<?= $escape(pageUrl(['edit' => (int)$visit['admission_id']], 'visits')) ?>"
                                         class="staff-action-btn staff-edit"
                                         aria-label="Edit visit for <?= $escape($visit['patient_name']) ?>">
-                                        <i class="ri-edit-box-line"></i>
+                                        <i class="ri-edit-box-line" aria-hidden="true"></i>
                                     </a>
 
                                     <a
                                         href="<?= $escape(pageUrl(['delete_visit' => (int)$visit['admission_id']], 'visits')) ?>"
                                         class="staff-action-btn staff-delete"
                                         aria-label="Delete visit for <?= $escape($visit['patient_name']) ?>">
-                                        <i class="ri-delete-bin-line"></i>
+                                        <i class="ri-delete-bin-line" aria-hidden="true"></i>
                                     </a>
                                 </div>
                             </td>
